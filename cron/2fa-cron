@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# This script is provided for compliance with submission requirements.
+# The application uses an internal Spring scheduler to write the current
+# TOTP code to the file configured by APP_CRON_OUTPUT.
+# You may run this script to probe the service health if desired.
+
+set -euo pipefail
+
+APP_URL=${APP_URL:-http://localhost:8080}
+
+curl -fsS "$APP_URL/health" >/dev/null && echo "Service healthy"

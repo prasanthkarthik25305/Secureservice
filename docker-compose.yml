@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: secureservice:latest
+    container_name: secureservice
+    ports:
+      - "3000:8080"
+    env_file:
+      - .env
+    environment:
+      - SERVER_PORT=8080
+      - APP_SEED_FILE=/data/seed.txt
+      - APP_CRON_OUTPUT=/cron/last_code.txt
+      - APP_TOTP_DIGITS=${APP_TOTP_DIGITS:-6}
+      - APP_TOTP_PERIOD=${APP_TOTP_PERIOD:-30}
+      - KEYS_STUDENT_PRIVATE=/app/keys/student_private.pem
+      - KEYS_STUDENT_PUBLIC=/app/keys/student_public.pem
+      - KEYS_INSTRUCTOR_PUBLIC=/app/keys/instructor_public.pem
+    volumes:
+      - ./data:/data
+      - ./cron:/cron
+      - ./keys:/app/keys:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s

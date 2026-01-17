@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 @Service
 public class TotpService {
@@ -45,5 +48,16 @@ public class TotpService {
         return TotpUtil.verify(getSecretBytes(), code,
                 appProps.getTotp().getPeriod(),
                 appProps.getTotp().getDigits());
+    }
+
+    public void writeCurrentCodeToFile() throws Exception {
+        byte[] key = getSecretBytes();
+        String code = TotpUtil.generateNow(key,
+                appProps.getTotp().getPeriod(),
+                appProps.getTotp().getDigits());
+        Path out = Path.of(appProps.getCronOutput());
+        Files.createDirectories(out.getParent());
+        Files.writeString(out, code + System.lineSeparator(),
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }
